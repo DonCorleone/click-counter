@@ -1,4 +1,18 @@
-import { Component } from '@angular/core';
+import {Component, ElementRef, ViewChild} from '@angular/core';
+import {EMPTY, fromEvent, Observable, scan, startWith} from "rxjs";
+import {windowedCount} from "./windowed-count";
+import {ChartData, createChartData} from "./chart-data";
+
+function createClickObservable(target: ElementRef): Observable<MouseEvent> {
+  return fromEvent(target.nativeElement, 'click');
+}
+
+function count<T>(incoming: Observable<T>): Observable<number>{
+  return incoming.pipe(
+    scan((acc) => acc + 1,0),
+    startWith(0)
+  );
+}
 
 @Component({
   selector: 'app-root',
@@ -6,5 +20,31 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'click-counter';
+  @ViewChild('button', { static: true }) button: ElementRef | undefined ;
+  private _buttonClicks$: Observable<MouseEvent> = EMPTY;
+  clickCounter$: Observable<number> = EMPTY;
+  lastSecondCounter$: Observable<number> = EMPTY;
+  lastFiveSecondsCounter$: Observable<number> = EMPTY;
+  lastFifteenSecondsCounter$: Observable<number> = EMPTY;
+  chartData$: Observable<ChartData> = EMPTY;
+
+  ngOnInit(): void {
+    if (this.button){
+      this._buttonClicks$ = createClickObservable(this.button);
+    }
+    this.clickCounter$ = this._buttonClicks$.pipe(count);
+    this.lastSecondCounter$ = this._buttonClicks$.pipe(windowedCount(1000));
+    this.lastFiveSecondsCounter$ = this._buttonClicks$.pipe(
+      windowedCount(5000)
+    );
+    this.lastFifteenSecondsCounter$ = this._buttonClicks$.pipe(
+      windowedCount(15000)
+    );
+    this.chartData$ = createChartData({
+      oneSecondWindow: this.lastSecondCounter$,
+      fiveSecondWindow: this.lastFiveSecondsCounter$,
+      fifteenSecondWindow: this.lastFifteenSecondsCounter$,
+    });
+  }
 }
+
