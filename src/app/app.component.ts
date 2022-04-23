@@ -20,13 +20,13 @@ function count<T>(incoming: Observable<T>): Observable<number>{
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  @ViewChild('button', { static: true }) button: ElementRef | undefined ;
-  private _buttonClicks$: Observable<MouseEvent> = EMPTY;
-  clickCounter$: Observable<number> = EMPTY;
-  lastSecondCounter$: Observable<number> = EMPTY;
-  lastFiveSecondsCounter$: Observable<number> = EMPTY;
-  lastFifteenSecondsCounter$: Observable<number> = EMPTY;
-  chartData$: Observable<ChartData> = EMPTY;
+  @ViewChild('button', { static: true }) button!: ElementRef ;
+  private _buttonClicks$!: Observable<MouseEvent>;
+  clickCounter$!: Observable<number>;
+  lastSecondCounter$!: Observable<number>;
+  lastFiveSecondsCounter$!: Observable<number>;
+  lastFifteenSecondsCounter$!: Observable<number>;
+  chartData$!: Observable<ChartData>;
 
   ngOnInit(): void {
     if (this.button){
@@ -47,4 +47,3 @@ export class AppComponent {
     });
   }
 }
-
